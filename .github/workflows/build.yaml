@@ -50,7 +50,7 @@ jobs:
           context: ./docker
           push: false
           tags: steps.meta.outputs.tags
-          outputs: type=tar,dest=/tmp/image.tar
+          outputs: type=oci,dest=/tmp/image.tar
 
       - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
         if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')

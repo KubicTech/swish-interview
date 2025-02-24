@@ -2,8 +2,13 @@ name: Build and Push Container
 
 on:
   push:
+    branches:
+      - main
+      - dev
+      - feature
     paths:
       - "docker/**"
+      - ".github/workflows/**"
   pull_request:
     branches: [main]
   release:

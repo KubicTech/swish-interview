@@ -57,6 +57,8 @@ jobs:
           push: false
           tags: steps.meta.outputs.tags
           outputs: dest=/tmp/image.tar
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
         if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')

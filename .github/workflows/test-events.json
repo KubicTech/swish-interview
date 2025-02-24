@@ -2,8 +2,8 @@
   "push": {
     "ref": "refs/heads/main",
     "repository": {
-      "name": "devsecops-test",
-      "full_name": "username/devsecops-test",
+      "name": "swish-interview",
+      "full_name": "KubicTech/swish-interview",
       "private": false
     },
     "commits": [{

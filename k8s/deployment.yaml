@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multi-env
+  labels:
+    app: multi-env
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multi-env
+  template:
+    metadata:
+      labels:
+        app: multi-env
+    spec:
+      containers:
+        - name: multi-env
+          image: ghcr.io/OWNER/multi-env:latest # Replace OWNER with your GitHub username
+          command: ["tail"]
+          args: ["-f", "/dev/null"]
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"

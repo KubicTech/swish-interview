@@ -1,0 +1,21 @@
+{
+  "push": {
+    "ref": "refs/heads/main",
+    "repository": {
+      "name": "devsecops-test",
+      "full_name": "username/devsecops-test",
+      "private": false
+    },
+    "commits": [{
+      "modified": ["docker/Dockerfile"]
+    }]
+  },
+  "release": {
+    "action": "prereleased",
+    "release": {
+      "tag_name": "v1.0.0-rc1",
+      "name": "Release v1.0.0-rc1",
+      "prerelease": true
+    }
+  }
+} 

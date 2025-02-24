@@ -1,0 +1,4 @@
+# Common data science and utility packages compatible with Python 2.7
+numpy==1.16.6
+pandas==0.24.2
+requests==2.27.1 

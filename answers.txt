@@ -1,0 +1,38 @@
+2. Build Time Optimization:
+a. Current build times: ~5-7 minutes
+b. Improvements:
+- Using multi-stage builds
+- Caching apt packages
+- Implementing BuildKit
+- Using slim base images where possible
+- Parallel package installation
+- Layer optimization
+
+4. Monitoring Solutions:
+- Prometheus for metrics collection
+- Grafana for visualization
+- Alert Manager for notifications
+- Custom metrics for:
+  * Resource utilization
+  * Application health
+  * Response times
+  * Error rates
+- Loki for log aggregation
+- Kubernetes events monitoring
+- Resource quotas and limits monitoring
+
+5. Memory-Intensive Workloads (100-250GB):
+a. Data to Code Architecture:
+- Use memory-mapped files (mmap) for large datasets
+- Implement data partitioning
+- Use distributed caching (Redis/Memcached)
+- Consider Apache Arrow for efficient memory usage
+- Implement lazy loading where possible
+
+b. Memory Monitoring:
+- Use cAdvisor for container metrics
+- Implement custom memory monitoring with Prometheus
+- Set up OOM monitoring and alerts
+- Use memory profiling tools
+- Monitor swap usage and page faults
+- Implement memory leak detection 

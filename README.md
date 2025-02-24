@@ -3,7 +3,7 @@ The following test was created to evaluate DevSecOps skills
 General questions - Docker, CVEs, CI/CD, monitoring
 
 1. Create an image with python2, python3, R, install a set of requirements and upload it to
-docker hub.
+ghcr.io.
 2. For the previously created image
 a. Share build times
 b. How would you improve build times?

@@ -56,7 +56,8 @@ jobs:
           image: ${{ env.REGISTRY }}/${{ env.REPO_LC }}
           push: false
           tags: steps.meta.outputs.tags
-          outputs: dest=/tmp/image.tar
+          outputs: |
+            type=tar,dest=/tmp/image.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -65,16 +66,18 @@ jobs:
         uses: aquasecurity/trivy-action@master
         continue-on-error: true
         with:
-          input: /tmp/image.tar
-          exit-code: "1"
+          image-ref: /tmp/image.tar
+          format: 'table'
+          exit-code: '1'
           severity: "CRITICAL,HIGH"
 
       - name: Run Trivy vulnerability scanner
         if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
         uses: aquasecurity/trivy-action@master
         with:
-          input: /tmp/image.tar
-          exit-code: "1"
+          image-ref: /tmp/image.tar
+          format: 'table'
+          exit-code: '1'
           severity: "CRITICAL,HIGH"
 
       - name: Log in to GitHub Container Registry

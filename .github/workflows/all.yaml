@@ -27,7 +27,7 @@ jobs:
     permissions:
       contents: read
     with:
-      blocking: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main')
+      blocking: ${{github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main')}}
   push:
     uses: ./.github/workflows/push.yaml
     needs: [build, scan]

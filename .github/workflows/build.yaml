@@ -55,9 +55,9 @@ jobs:
           driver: docker-container
           image: ${{ env.REGISTRY }}/${{ env.REPO_LC }}
           push: false
-          tags: steps.meta.outputs.tags
+          tags: ${{ steps.meta.outputs.tags }}
           outputs: |
-            type=tar,dest=/tmp/image.tar
+            type=oci,tar=false,dest=/tmp/image
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -67,9 +67,9 @@ jobs:
         continue-on-error: true
         with:
           scan-type: "image"
-          input: /tmp/image.tar
-          format: 'table'
-          exit-code: '1'
+          input: /tmp/image
+          format: "table"
+          exit-code: "1"
           severity: "CRITICAL,HIGH"
 
       - name: Run Trivy vulnerability scanner
@@ -78,9 +78,15 @@ jobs:
         with:
           scan-type: "image"
           input: /tmp/image.tar
-          format: 'table'
-          exit-code: '1'
+          format: "table"
+          exit-code: "1"
           severity: "CRITICAL,HIGH"
+          output: "trivy-results.sarif"
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: "trivy-results.sarif"
 
       - name: Log in to GitHub Container Registry
         if: success() && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
@@ -96,4 +102,4 @@ jobs:
         with:
           context: ./docker
           push: true
-          tags: steps.meta.outputs.tags
+          tags: ${{ steps.meta.outputs.tags }}

@@ -6,7 +6,8 @@ on:
       blocking:
         required: false
         type: boolean
-
+permissions:
+  pull-requests: write
 jobs:
   scan:
     runs-on: ubuntu-latest

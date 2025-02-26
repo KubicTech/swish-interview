@@ -18,6 +18,7 @@ permissions:
   security-events: write
   contents: read
   packages: write
+  pull-requests: write
 run-name: "🚀 ${{ github.event_name == 'push' && '📦 Push' || github.event_name == 'pull_request' && '🔀 PR' || github.event_name == 'release' && '🏷️ Release' }} | ${{ github.ref_name }} | ${{ github.event_name == 'pull_request' && format('#{0}: {1}', github.event.number, github.event.pull_request.title) || github.event_name == 'release' && github.event.release.name || '' }}"
 jobs:
   build:
@@ -31,6 +32,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      pull-requests: write
     with:
       blocking: ${{github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/prod') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/prod')}}
   push:

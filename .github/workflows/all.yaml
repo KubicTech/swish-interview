@@ -17,7 +17,7 @@ permissions:
   security-events: write
   contents: read
   packages: write
-run-name: "🔄 #${{github.run_id}} | ${{ github.ref_name }} | ${{github.event_name}} ${{ github.event_name == 'pull_request' && format('PR #{0}: {1}', github.event.number, github.event.pull_request.title) || '' }}"
+run-name: "🚀 ${{ github.event_name == 'push' && '📦 Push' || github.event_name == 'pull_request' && '🔀 PR' || github.event_name == 'release' && '🏷️ Release' }} | ${{ github.ref_name }} | ${{ github.event_name == 'pull_request' && format('#{0}: {1}', github.event.number, github.event.pull_request.title) || github.event_name == 'release' && github.event.release.name || '' }}"
 jobs:
   build:
     uses: ./.github/workflows/build.yaml

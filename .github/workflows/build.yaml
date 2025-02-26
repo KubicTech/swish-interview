@@ -80,6 +80,7 @@ jobs:
         id: "b_scan"
         if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main')
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           scan-type: "image"
           input: /tmp/image

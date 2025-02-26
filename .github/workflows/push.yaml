@@ -25,7 +25,7 @@ jobs:
 
       - name: Load image
         run: |
-          docker load --input ${{ runner.temp }}/myimage
+          docker load --input ${{ runner.temp }}/image.tar
           docker image ls -a
 
       - name: Log in to GitHub Container Registry

@@ -42,8 +42,7 @@ jobs:
           context: ./docker
           push: false
           tags: ${{ steps.meta.outputs.tags }}
-          outputs: |
-            type=oci,tar=false,dest=${{ runner.temp }}/image
+          outputs: type=docker,dest=${{ runner.temp }}/image.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -51,5 +50,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: image
-          path: ${{ runner.temp }}/image
+          path: ${{ runner.temp }}/image.tar
           retention-days: 1

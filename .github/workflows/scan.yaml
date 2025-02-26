@@ -18,6 +18,7 @@ jobs:
         with:
           name: image
           path: ${{ runner.temp }}
+          
 
       - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
         id: "nb_scan"
@@ -26,7 +27,7 @@ jobs:
         continue-on-error: true
         with:
           scan-type: "image"
-          input: ${{ runner.temp }}/image
+          input: ${{ runner.temp }}/image.tar
           scanners: "vuln,misconfig"
           format: "table"
           exit-code: "0"
@@ -40,7 +41,7 @@ jobs:
         continue-on-error: true
         with:
           scan-type: "image"
-          input: ${{ runner.temp }}/image
+          input: ${{ runner.temp }}/image.tar
           scanners: "vuln,misconfig"
           format: "table"
           exit-code: "1"

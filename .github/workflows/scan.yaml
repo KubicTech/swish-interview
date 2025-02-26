@@ -1,0 +1,79 @@
+name: Security Scan
+
+on:
+  workflow_call:
+    inputs:
+      blocking:
+        required: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: image
+          path: ${{ runner.temp }}
+
+      - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
+        id: "nb_scan"
+        if:
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          scan-type: "image"
+          input: ${{ runner.temp }}/image
+          scanners: "vuln,misconfig"
+          format: "table"
+          exit-code: "0"
+          severity: "CRITICAL,HIGH"
+          output: trivy-result.txt
+
+      - name: Run Trivy vulnerability scanner (blocking for main and releases)
+        id: "b_scan"
+        if:
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          scan-type: "image"
+          input: ${{ runner.temp }}/image
+          scanners: "vuln,misconfig"
+          format: "table"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH"
+          output: trivy-result.txt
+
+      - name: Check Trivy result file
+        run: cat trivy-result.txt
+
+      - name: Format Trivy Scan Result
+        run: |
+          if [ -s trivy-result.txt ]; then
+            echo -e "## Vulnerability Scan Results\n<details><summary>Details</summary>\n\n\`\`\`\n$(cat trivy-result.txt)\n\`\`\`\n</details>" > formatted-trivy-result.md
+          else
+            echo -e "## Vulnerability Scan Results\nNo vulnerabilities were detected." > formatted-trivy-result.md
+          fi
+
+      - name: Comment PR with Trivy scan results
+        if: (github.event_name == 'pull_request')
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: formatted-trivy-result.md
+
+      - name: Add Scan Results to Action Summary
+        run: |
+          while IFS= read -r line; do
+              if [[ $line == "┌"* ]]; then echo '```' >> $GITHUB_STEP_SUMMARY; fi
+              echo "$line" >> $GITHUB_STEP_SUMMARY
+              if [[ $line == *"┘" ]]; then echo '```' >> $GITHUB_STEP_SUMMARY; fi
+          done < "trivy-result.txt"
+
+      - name: Error if Scan Failed and Prod
+        if: inputs.blocking
+        run: |
+          echo "Security Scan Failed"
+          exit 1

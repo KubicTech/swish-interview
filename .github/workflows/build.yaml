@@ -1,18 +1,5 @@
-name: Build and Push Container
-
-on:
-  push:
-    branches:
-      - main
-      - dev
-      - feature
-    paths:
-      - "docker/**"
-      - ".github/workflows/**"
-  pull_request:
-    types: [opened]
-  release:
-    types: [released, prereleased]
+name: Build Container
+on: workflow_call
 
 env:
   REGISTRY: ghcr.io
@@ -22,9 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
-      security-events: write
-
+    outputs:
+      tags: ${{ steps.meta.outputs.tags }}
     steps:
       - name: set lower case repo name
         run: |
@@ -57,83 +43,13 @@ jobs:
           push: false
           tags: ${{ steps.meta.outputs.tags }}
           outputs: |
-            type=oci,tar=false,dest=/tmp/image
+            type=oci,tar=false,dest=${{ runner.temp }}/image
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Scan before push
-      - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
-        id: "nb_scan"
-        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')
-        uses: aquasecurity/trivy-action@master
-        continue-on-error: true
+      - name: "Upload Artifact"
+        uses: actions/upload-artifact@v4
         with:
-          scan-type: "image"
-          input: /tmp/image
-          scanners: "vuln,misconfig"
-          format: "table"
-          exit-code: "0"
-          severity: "CRITICAL,HIGH"
-          output: trivy-result.txt
-
-      - name: Run Trivy vulnerability scanner (blocking for main and releases)
-        id: "b_scan"
-        if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main')
-        uses: aquasecurity/trivy-action@master
-        continue-on-error: true
-        with:
-          scan-type: "image"
-          input: /tmp/image
-          scanners: "vuln,misconfig"
-          format: "table"
-          exit-code: "1"
-          severity: "CRITICAL,HIGH"
-          output: trivy-result.txt
-
-
-      - name: Check Trivy result file
-        run: cat trivy-result.txt
-
-      - name: Format Trivy Scan Result
-        run: |
-          if [ -s trivy-result.txt ]; then
-            echo -e "## Vulnerability Scan Results\n<details><summary>Details</summary>\n\n\`\`\`\n$(cat trivy-result.txt)\n\`\`\`\n</details>" > formatted-trivy-result.md
-          else
-            echo -e "## Vulnerability Scan Results\nNo vulnerabilities were detected." > formatted-trivy-result.md
-          fi
-
-      - name: Comment PR with Trivy scan results
-        if: (github.event_name == 'pull_request')
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          path: formatted-trivy-result.md
-
-      - name: Add Scan Results to Action Summary
-        run: |
-          while IFS= read -r line; do
-              if [[ $line == "┌"* ]]; then echo '```' >> $GITHUB_STEP_SUMMARY; fi
-              echo "$line" >> $GITHUB_STEP_SUMMARY
-              if [[ $line == *"┘" ]]; then echo '```' >> $GITHUB_STEP_SUMMARY; fi
-          done < "trivy-result.txt"
-
-      - name: Log in to GitHub Container Registry
-        if: steps.b_scan.outcome == 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main'))
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push image
-        if: steps.b_scan.outcome == 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main'))
-        uses: docker/build-push-action@v6
-        with:
-          context: ./docker
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-
-      - name: Error if Scan Failed and Prod
-        if: steps.b_scan.outcome != 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main'))
-        run: |
-          echo "Security Scan Failed"
-          exit 1
+          name: docker_build
+          path: ${{ runner.temp }}/image
+          retention-days: 1

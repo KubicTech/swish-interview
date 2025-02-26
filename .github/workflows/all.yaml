@@ -1,0 +1,29 @@
+name: Build Container
+
+on:
+  push:
+    paths:
+      - "docker/**"
+      - ".github/workflows/**"
+  pull_request:
+    types: [opened]
+    branches:
+      - main
+      - dev
+      - feature
+  release:
+    types: [released, prereleased]
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yaml
+
+  scan:
+    uses: ./github/workflows/scan.yaml
+    with: 
+      blocking: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main')
+  push:
+    uses: ./github/workflows/push.yaml
+    needs: [build,scan]
+    with:
+      tags: ${{ needs.build.outputs.tags }}

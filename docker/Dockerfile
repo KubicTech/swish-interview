@@ -81,6 +81,7 @@ RUN apt-get update && apt-get install -y \
     libtiff5-dev \
     libjpeg-dev \
     libv8-dev \
+    libmagick++-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # copy in Python environments

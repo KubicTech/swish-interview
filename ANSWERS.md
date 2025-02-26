@@ -3,7 +3,7 @@
 1. Docker resources are in the docker folder I uploaded it to ghcr.io instead of dockerhub as my dockerhub is for my opensource projects.
 2. For the previously created image
 
-   - Build Times: 188.0s (locally - fresh)
+   - Build Times: 515.0s (locally - fresh)
    - Improvements:
      - Improve layer optimization based on which parts frequently change
      - More agressive caching options

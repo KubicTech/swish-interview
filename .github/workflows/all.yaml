@@ -13,6 +13,10 @@ on:
       - feature
   release:
     types: [released, prereleased]
+permissions:
+  security-events: write
+  contents: read
+  packages: write
 run-name: "[#${{github.run_id}}] Building ${{ github.ref_name }} - ${{github.event_name}} - ${{github.event.pull_request.title}} ${{github.event.number}} "
 jobs:
   build:

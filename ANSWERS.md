@@ -1,12 +1,12 @@
 ## General
 
-1. Docker resources are in the docker folder I uploaded it to ghcr.io instead of dockerhub as my dockerhub is for my opensource projects.
+1. Docker resources are in the docker folder. I uploaded it to ghcr.io instead of dockerhub as my dockerhub is for my opensource projects.
 2. For the previously created image
 
    - Build Times: 515.0s (locally - fresh) 18m 45s (Github Actions)
    - Improvements:
      - Improve layer optimization based on which parts frequently change
-     - More agressive caching options (caching R deps would cut down on this significantly)
+     - More aggressive caching options (caching R deps would cut down on this significantly)
      - Larger Runners (depending on Application Architecture and bottlenecks)
      - Identifying unused dependencies
      - Slimmer custom base image
@@ -45,7 +45,7 @@
    - Using ArgoCD or an abstraction in front of it that interacts with a git repo would take care of this. You would need to corelate the usage with a specific user by adding metadata for who deploys it and then could filter for that metadata in prometheus/grafana/etc in order to create a dashboard to track it.
 3. Taken care of with the above.
 4. Previously a combination of cert-manager and external-dns has worked well for this. I would see if ssh/sftp access is absolutely required as well or if there are other solutions as I dislike the idea of having the nodes accessible.
-5. 1. Previously I've utilized cache disks (pvcs with persistent data for bootstrapping) and startup jobs to bootstrap data that was needed but those data sets were much smaller so I doubt they would scale for this.
+5. 1. In previous projects, I've utilized cache disks (PVCs with persistent data for bootstrapping) and startup jobs to load required data. However, these were implemented for much smaller datasets, so I doubt they would scale effectively for the requirements mentioned here.
    2. - I haven't had to deal with that issue before so it would take a fair amount of time to learn and architect. I know of some tools in the space like Apache Spark and Dask but have not used them.
       - Since I don't have experience with these tools or requirements I wouldn't be able to Architect this on my own without lots of research and testing. Reaching out to a team member with experience for direction would be my first step here.
       - If I was to have to architect this myself without assistance or guidance

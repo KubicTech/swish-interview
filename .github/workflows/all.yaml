@@ -15,15 +15,19 @@ on:
     types: [released, prereleased]
 
 jobs:
+  checkout:
+    uses: actions/checkout@v3 # Necessary to access local action
+
   build:
-    uses: ./.github/workflows/build.yaml
+    uses: ./.github/workflows/build.yaml@main
 
   scan:
-    uses: ./github/workflows/scan.yaml
-    with: 
+    uses: ./github/workflows/scan.yaml@main
+    needs: build
+    with:
       blocking: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main')
   push:
-    uses: ./github/workflows/push.yaml
-    needs: [build,scan]
+    uses: ./github/workflows/push.yaml@main
+    needs: [build, scan]
     with:
       tags: ${{ needs.build.outputs.tags }}

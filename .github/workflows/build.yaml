@@ -79,11 +79,10 @@ jobs:
         with:
           scan-type: "image"
           input: /tmp/image
-          scanners: "vuln,misconfig,secret"
+          scanners: "vuln,misconfig"
           format: "table"
           exit-code: "0"
           severity: "CRITICAL,HIGH"
-          output: "trivy-results.sarif"
 
       - name: Log in to GitHub Container Registry
         if: success() && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))

@@ -115,7 +115,7 @@ jobs:
           done < "trivy-result.txt"
 
       - name: Log in to GitHub Container Registry
-        if: steps.b_scan.outcome == 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
+        if: steps.b_scan.outcome == 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main'))
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -123,9 +123,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push image
-        if: steps.b_scan.outcome == 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
+        if: steps.b_scan.outcome == 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main'))
         uses: docker/build-push-action@v6
         with:
           context: ./docker
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+      - name: Error if Scan Failed and Prod
+        if: steps.b_scan.outcome == 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main'))
+        run: |
+          echo "Security Scan Failed"
+          exit 1
+

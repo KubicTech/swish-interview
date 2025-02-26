@@ -68,11 +68,19 @@ RUN apt-get update && apt-get install -y \
     libblas3 \
     liblapack3 \
     libatlas3-base \
-    # r devtools requirements
+    # r devtools requirements https://stackoverflow.com/questions/20923209/problems-installing-the-devtools-package
     build-essential \
     libcurl4-gnutls-dev \
     libxml2-dev \
     libssl-dev \
+    libfontconfig1-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    libtiff5-dev \
+    libjpeg-dev \
+    libv8-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # copy in Python environments

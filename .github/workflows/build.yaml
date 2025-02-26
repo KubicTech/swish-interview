@@ -52,12 +52,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./docker
-          driver: docker-container
-          image: ${{ env.REGISTRY }}/${{ env.REPO_LC }}
           push: false
           tags: steps.meta.outputs.tags
           outputs: |
-            type=tar,dest=/tmp/image.tar
+            type=oci,tar=false,dest=/tmp/image
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

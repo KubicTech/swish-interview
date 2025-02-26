@@ -6,7 +6,7 @@
    - Build Times: 515.0s (locally - fresh)
    - Improvements:
      - Improve layer optimization based on which parts frequently change
-     - More agressive caching options
+     - More agressive caching options (caching R deps would cut down on this significantly)
      - Larger Runners (depending on Application Architecture and bottlenecks)
      - Identifying unused dependencies
      - Slimmer custom base image

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: multi-env
-          image: ghcr.io/OWNER/multi-env:latest # Replace OWNER with your GitHub username
+          image: ghcr.io/swish/multi-env:latest
           command: ["tail"]
           args: ["-f", "/dev/null"]
           resources:

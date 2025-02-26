@@ -50,6 +50,6 @@ jobs:
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v4
         with:
-          name: docker_build
+          name: image
           path: ${{ runner.temp }}/image
           retention-days: 1

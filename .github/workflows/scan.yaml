@@ -22,7 +22,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
         id: "nb_scan"
-        if: !inputs.blocking
+        if: !(inputs.blocking)
         uses: aquasecurity/trivy-action@master
         continue-on-error: true
         with:

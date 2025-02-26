@@ -62,6 +62,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # Scan before push
       - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
         id: "nb_scan"
         if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')
@@ -104,6 +105,14 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           path: formatted-trivy-result.md
+
+      - name: Add Scan Results to Github Summary
+        run: |
+          while IFS= read -r line; do
+              if [[ $line == "┌"* ]]; then echo '```' >> $GITHUB_STEP_SUMMARY; fi
+              echo "$line" >> $GITHUB_STEP_SUMMARY
+              if [[ $line == *"┘" ]]; then echo '```' >> $GITHUB_STEP_SUMMARY; fi
+          done < "trivy-result.txt"
 
       - name: Log in to GitHub Container Registry
         if: steps.b_scan.outcome == 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))

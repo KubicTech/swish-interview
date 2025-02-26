@@ -33,7 +33,9 @@ jobs:
           REPO: "${{ github.repository }}"
 
       - uses: actions/checkout@v4
+
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v3
         with:
           driver: "docker-container"
@@ -51,6 +53,7 @@ jobs:
       - name: Build image
         uses: docker/build-push-action@v6
         with:
+          builder: ${{ steps.buildx.name }}
           context: ./docker
           push: false
           tags: steps.meta.outputs.tags
@@ -59,19 +62,19 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
-        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')
-        uses: aquasecurity/trivy-action@master
-        continue-on-error: true
-        with:
-          scan-type: "image"
-          input: /tmp/image
-          format: "table"
-          exit-code: "1"
-          severity: "CRITICAL,HIGH"
+      # - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
+      #   if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')
+      #   uses: aquasecurity/trivy-action@master
+      #   continue-on-error: true
+      #   with:
+      #     scan-type: "image"
+      #     input: /tmp/image
+      #     format: "table"
+      #     exit-code: "1"
+      #     severity: "CRITICAL,HIGH"
 
       - name: Run Trivy vulnerability scanner
-        if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        # if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: "image"
@@ -96,8 +99,9 @@ jobs:
 
       - name: Push image
         if: success() && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
+          builder: ${{ steps.buildx.name }}
           context: ./docker
           push: true
           tags: ${{ steps.meta.outputs.tags }}

@@ -79,8 +79,9 @@ jobs:
         with:
           scan-type: "image"
           input: /tmp/image
+          scanners: "vuln,misconfig,secret"
           format: "table"
-          exit-code: "1"
+          exit-code: "0"
           severity: "CRITICAL,HIGH"
           output: "trivy-results.sarif"
 

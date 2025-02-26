@@ -58,7 +58,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           outputs: |
             type=oci,tar=false,dest=/tmp/image
-            type=docker
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -106,7 +105,7 @@ jobs:
         with:
           path: formatted-trivy-result.md
 
-      - name: Add Scan Results to Github Summary
+      - name: Add Scan Results to Action Summary
         run: |
           while IFS= read -r line; do
               if [[ $line == "┌"* ]]; then echo '```' >> $GITHUB_STEP_SUMMARY; fi

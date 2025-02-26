@@ -10,7 +10,7 @@ on:
       - "docker/**"
       - ".github/workflows/**"
   pull_request:
-    branches: [main]
+    types: [opened]
   release:
     types: [released, prereleased]
 
@@ -53,29 +53,20 @@ jobs:
       - name: Build image
         uses: docker/build-push-action@v6
         with:
-          builder: ${{ steps.buildx.name }}
           context: ./docker
           push: false
           tags: steps.meta.outputs.tags
           outputs: |
             type=oci,tar=false,dest=/tmp/image
+            type=docker
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
-      #   if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')
-      #   uses: aquasecurity/trivy-action@master
-      #   continue-on-error: true
-      #   with:
-      #     scan-type: "image"
-      #     input: /tmp/image
-      #     format: "table"
-      #     exit-code: "1"
-      #     severity: "CRITICAL,HIGH"
-
-      - name: Run Trivy vulnerability scanner
-        # if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
+        id: "nb_scan"
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           scan-type: "image"
           input: /tmp/image
@@ -83,9 +74,39 @@ jobs:
           format: "table"
           exit-code: "0"
           severity: "CRITICAL,HIGH"
+          output: trivy-result.txt
+
+      - name: Run Trivy vulnerability scanner (blocking for main and releases)
+        id: "b_scan"
+        if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main')
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "image"
+          input: /tmp/image
+          scanners: "vuln,misconfig"
+          format: "table"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH"
+
+      - name: Check Trivy result file
+        run: cat trivy-result.txt
+
+      - name: Format Trivy Scan Result
+        run: |
+          if [ -s trivy-result.txt ]; then
+            echo -e "## Vulnerability Scan Results\n<details><summary>Details</summary>\n\n\`\`\`\n$(cat trivy-result.txt)\n\`\`\`\n</details>" > formatted-trivy-result.md
+          else
+            echo -e "## Vulnerability Scan Results\nNo vulnerabilities were detected." > formatted-trivy-result.md
+          fi
+
+      - name: Comment PR with Trivy scan results
+        if: (github.event_name == 'pull_request')
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: formatted-trivy-result.md
 
       - name: Log in to GitHub Container Registry
-        if: success() && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
+        if: steps.b_scan.outcome == 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -93,10 +114,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push image
-        if: success() && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
+        if: steps.b_scan.outcome == 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
         uses: docker/build-push-action@v6
         with:
-          builder: ${{ steps.buildx.name }}
           context: ./docker
           push: true
           tags: ${{ steps.meta.outputs.tags }}

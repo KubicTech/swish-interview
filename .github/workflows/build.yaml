@@ -88,6 +88,8 @@ jobs:
           format: "table"
           exit-code: "1"
           severity: "CRITICAL,HIGH"
+          output: trivy-result.txt
+
 
       - name: Check Trivy result file
         run: cat trivy-result.txt
@@ -129,9 +131,9 @@ jobs:
           context: ./docker
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+
       - name: Error if Scan Failed and Prod
-        if: steps.b_scan.outcome == 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main'))
+        if: steps.b_scan.outcome != 'sucess' && (github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main'))
         run: |
           echo "Security Scan Failed"
           exit 1
-

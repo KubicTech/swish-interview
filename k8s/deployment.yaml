@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: multi-env
+  name: swish-interview
   labels:
-    app: multi-env
+    app: swish-interview
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: multi-env
+      app: swish-interview
   template:
     metadata:
       labels:
-        app: multi-env
+        app: swish-interview
     spec:
       containers:
-        - name: multi-env
-          image: ghcr.io/swish/multi-env:latest
+        - name: swish-interview
+          image: ghcr.io/kubictech/swish-interview:latest
           command: ["tail"]
           args: ["-f", "/dev/null"]
           resources:

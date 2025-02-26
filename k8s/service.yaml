@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: multi-env
+  name: swish-interview
 spec:
   selector:
-    app: multi-env
+    app: swish-interview
   ports:
     - protocol: TCP
       port: 80

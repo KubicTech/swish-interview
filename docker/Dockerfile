@@ -4,7 +4,7 @@
 # fortunately I haven't had to do much with Python2 but this should meet what was requested.
 
 # Build stage
-FROM debian:bookworm-slim AS builder
+FROM debian:bullseye-slim AS builder
 
 # Set up virtual environment
 WORKDIR /app
@@ -68,13 +68,19 @@ RUN apt-get update && apt-get install -y \
     libblas3 \
     liblapack3 \
     libatlas3-base \
+    # r devtools requirements
+    build-essential \
+    libcurl4-gnutls-dev \
+    libxml2-dev \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # copy in Python environments
 COPY --from=builder /venv /venv
 COPY --from=builder /venv2 /venv2
 
-WORKDIR /app
+# install r and deps
+COPY r-requirements.txt r-requirements.sh ./
+RUN /bin/bash ./r-requirements.sh
 
-# Keep container running for k8s
-CMD ["tail", "-f", "/dev/null"] 
+WORKDIR /app

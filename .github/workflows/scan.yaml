@@ -8,17 +8,18 @@ on:
         type: boolean
 
 jobs:
-  build:
+  scan:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: image
           path: ${{ runner.temp }}
-          
 
       - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
         id: "nb_scan"
@@ -67,13 +68,13 @@ jobs:
 
       - name: Publish Trivy Output to Summary
         run: |
-          if [[ -s trivy.txt ]]; then
+          if [[ -s trivy-result.txt ]]; then
             {
               echo "### Security Output"
               echo "<details><summary>Click to expand</summary>"
               echo ""
               echo '```terraform'
-              cat trivy.txt
+              cat trivy-result.txt
               echo '```'
               echo "</details>"
             } >> $GITHUB_STEP_SUMMARY

@@ -13,9 +13,8 @@ on:
       - feature
   release:
     types: [released, prereleased]
-
+run-name: "[#${{github.run_id}}] Building ${{ github.ref_name }} - ${{github.event_name}} - ${{github.event.pull_request.title}} ${{github.event.number}} "
 jobs:
-
   build:
     uses: ./.github/workflows/build.yaml
     permissions:

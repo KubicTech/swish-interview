@@ -4,7 +4,7 @@
 # fortunately I haven't had to do much with Python2 but this should meet what was requested.
 
 # Build stage
-FROM debian:bullseye-slim AS builder
+FROM debian:bookworm-slim AS builder
 
 # Set up virtual environment
 WORKDIR /app

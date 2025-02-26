@@ -17,19 +17,19 @@ on:
 jobs:
 
   build:
-    uses: ./.github/workflows/build.yaml@main
+    uses: ./.github/workflows/build.yaml
     permissions:
       contents: read
 
   scan:
-    uses: ./github/workflows/scan.yaml@main
+    uses: ./.github/workflows/scan.yaml
     needs: build
     permissions:
       contents: read
     with:
       blocking: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main')
   push:
-    uses: ./github/workflows/push.yaml@main
+    uses: ./.github/workflows/push.yaml
     needs: [build, scan]
     permissions:
       contents: read

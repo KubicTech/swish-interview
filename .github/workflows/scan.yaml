@@ -21,7 +21,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner (non-blocking) for PRs.
         id: "nb_scan"
-        if:
+        if: !inputs.blocking
         uses: aquasecurity/trivy-action@master
         continue-on-error: true
         with:
@@ -35,7 +35,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner (blocking for main and releases)
         id: "b_scan"
-        if:
+        if: inputs.blocking
         uses: aquasecurity/trivy-action@master
         continue-on-error: true
         with:
@@ -64,13 +64,19 @@ jobs:
         with:
           path: formatted-trivy-result.md
 
-      - name: Add Scan Results to Action Summary
+      - name: Publish Trivy Output to Summary
         run: |
-          while IFS= read -r line; do
-              if [[ $line == "┌"* ]]; then echo '```' >> $GITHUB_STEP_SUMMARY; fi
-              echo "$line" >> $GITHUB_STEP_SUMMARY
-              if [[ $line == *"┘" ]]; then echo '```' >> $GITHUB_STEP_SUMMARY; fi
-          done < "trivy-result.txt"
+          if [[ -s trivy.txt ]]; then
+            {
+              echo "### Security Output"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```terraform'
+              cat trivy.txt
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Error if Scan Failed and Prod
         if: inputs.blocking
